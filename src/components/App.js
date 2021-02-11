@@ -65,10 +65,21 @@ class App extends Component {
     let Id = await this.state.memberContract.methods.getPatientIdByAddress().call({from:this.state.account})
         .then(function(result){
           test = result
-          // this.setState({ patientId: test })
-          console.log(test)
         });
     this.setState(({ patientId: test }))
+  }
+
+  async getHospitalId() {
+    let test
+    let Id = await this.state.memberContract.methods.getHospitalIdByAddress().call({from:this.state.account})
+        .then(function(result){
+          test = result
+        });
+    this.setState(({ hospitalId: test }))
+  }
+
+  NewDataNeeder(patientId) {
+    this.state.authorityContract.methods.NewDataNeeder(patientId, 1, 1).send({from:this.state.account})
   }
 
   constructor(props) {
@@ -78,6 +89,7 @@ class App extends Component {
       memberContract: {},
       authorityContract: {},
       patientId: 100,
+      hospitalId: 100,
       loading: true
     }
   }
@@ -113,20 +125,56 @@ class App extends Component {
                   <button type="submit" className="btn btn-primary btn-block btn-lg">PatientRegister</button>
                 </form>
 
-
-
                 <form className="mb-3" onSubmit={(event) => {
                   event.preventDefault()
                   this.getPatientId()
                 }}>
-                  {/*<div>*/}
-                  {/*  <label className="float-left"><b>Stake Tokens</b></label>*/}
-                  {/*</div>*/}
                   <div className="input-group mb-4">
                     {this.state.patientId}
                   </div>
-                  <button type="submit" className="btn btn-primary btn-block btn-lg">GetPatient</button>
+                  <button type="submit" className="btn btn-primary btn-block btn-lg">GetPatientId</button>
                 </form>
+
+                <form className="mb-3" onSubmit={(event) => {
+                  event.preventDefault()
+                  this.state.memberContract.methods.HospitalRegister().send({from:this.state.account})
+                }}>
+                  <button type="submit" className="btn btn-primary btn-block btn-lg">HospitalRegister</button>
+                </form>
+
+                <form className="mb-3" onSubmit={(event) => {
+                  event.preventDefault()
+                  this.getHospitalId()
+                }}>
+                  <div className="input-group mb-4">
+                    {this.state.hospitalId}
+                  </div>
+                  <button type="submit" className="btn btn-primary btn-block btn-lg">GetHospitalId</button>
+                </form>
+
+                <form className="mb-3" onSubmit={(event) => {
+                  event.preventDefault()
+                  let patientId
+                  patientId = this.input.value.toString()
+                  this.NewDataNeeder(patientId)
+                }}>
+                  <div className="input-group mb-4">
+                    <input
+                        type="text"
+                        ref={(input) => { this.input = input }}
+                        className="form-control form-control-lg"
+                        placeholder="0"
+                        required />
+                    <div className="input-group-append">
+                      <div className="input-group-text">
+                         &nbsp;&nbsp;&nbsp; PatientId
+                      </div>
+                    </div>
+                  </div>
+                  <button type="submit" className="btn btn-primary btn-block btn-lg">NewDataNeeder</button>
+                </form>
+
+
 
               </div>
             </main>
