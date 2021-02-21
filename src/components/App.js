@@ -78,6 +78,16 @@ class App extends Component {
     this.setState(({ hospitalId: test }))
   }
 
+  async getEvents() {
+    await this.state.memberContract.getPastEvents('PatientRegisterApply', {
+      fromBlock: 0,
+      toBlock: "latest"
+    }, function(error, events){ console.log(events[0].returnValues._patientId); })
+        .then(function(events) {
+          console.log(events)
+        });
+  }
+
   NewDataNeeder(patientId) {
     this.state.authorityContract.methods.NewDataNeeder(patientId, 1, 1).send({from:this.state.account})
   }
@@ -95,14 +105,6 @@ class App extends Component {
   }
 
   render() {
-    // let content
-    // if (this.state.loading) {
-    //   content = <p id="loader" className="text-center">Loading...</p>
-    // } else {
-    //   content = <Main
-    //
-    //   />
-    // }
 
     return (
       <div>
@@ -118,6 +120,8 @@ class App extends Component {
                 >
                 </a>
 
+
+                {/*PatientRegister*/}
                 <form className="mb-3" onSubmit={(event) => {
                   event.preventDefault()
                   this.state.memberContract.methods.PatientRegister().send({from:this.state.account})
@@ -125,6 +129,8 @@ class App extends Component {
                   <button type="submit" className="btn btn-primary btn-block btn-lg">PatientRegister</button>
                 </form>
 
+
+                {/*GetPatientId*/}
                 <form className="mb-3" onSubmit={(event) => {
                   event.preventDefault()
                   this.getPatientId()
@@ -135,6 +141,8 @@ class App extends Component {
                   <button type="submit" className="btn btn-primary btn-block btn-lg">GetPatientId</button>
                 </form>
 
+
+                {/*HospitalRegister*/}
                 <form className="mb-3" onSubmit={(event) => {
                   event.preventDefault()
                   this.state.memberContract.methods.HospitalRegister().send({from:this.state.account})
@@ -142,6 +150,8 @@ class App extends Component {
                   <button type="submit" className="btn btn-primary btn-block btn-lg">HospitalRegister</button>
                 </form>
 
+
+                {/*GetHospitalId*/}
                 <form className="mb-3" onSubmit={(event) => {
                   event.preventDefault()
                   this.getHospitalId()
@@ -152,6 +162,8 @@ class App extends Component {
                   <button type="submit" className="btn btn-primary btn-block btn-lg">GetHospitalId</button>
                 </form>
 
+
+                {/*NewDataNeeder*/}
                 <form className="mb-3" onSubmit={(event) => {
                   event.preventDefault()
                   let patientId
@@ -172,6 +184,16 @@ class App extends Component {
                     </div>
                   </div>
                   <button type="submit" className="btn btn-primary btn-block btn-lg">NewDataNeeder</button>
+                </form>
+
+
+                {/*events*/}
+                <form className="mb-3" onSubmit={(event) => {
+                  event.preventDefault()
+                  this.getEvents()
+                }}>
+
+                  <button type="submit" className="btn btn-primary btn-block btn-lg">GetEvents</button>
                 </form>
 
 
