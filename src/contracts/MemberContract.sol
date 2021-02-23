@@ -25,6 +25,10 @@ contract MemberContract {
     mapping(uint => Patient) patients;
     mapping(address =>uint) patientAddress2Id;
     uint patientAmount = 0;
+    uint patientRegisterApplyBlockNumber = 0;
+    function GetPatientBlockNum() public OnlyManager view returns(uint) {
+        return patientRegisterApplyBlockNumber;
+    }
 
     // hospital struct
     struct Hospital{
@@ -32,9 +36,13 @@ contract MemberContract {
         bool isValid;
         bool isVerified;
     }
-    mapping(uint => Hospital)  hospitals; 
+    mapping(uint => Hospital)  hospitals;
     mapping(address => uint)  hospitalAddress2Id;
     uint hospitalAmount = 0;
+    uint hospitalRegisterApplyBlockNumber = 0;
+    function GetHospitalBlockNum() public OnlyManager view returns(uint) {
+        return hospitalRegisterApplyBlockNumber;
+    }
 
     modifier OnlyUnRegister(){
         require(!patients[patientAddress2Id[msg.sender]].isValid);
@@ -48,7 +56,7 @@ contract MemberContract {
         patientAddress2Id[msg.sender]=patientAmount;
         emit PatientRegisterApply(patientAmount,now);
     }
-    
+
     function HospitalRegister() public OnlyUnRegister{
         hospitalAmount++;
         hospitals[hospitalAmount] = Hospital(msg.sender,true,false);
@@ -70,6 +78,12 @@ contract MemberContract {
     function getManager() private view returns (address) {
         return manager;
     }
+    function isManager() public view returns (uint) {
+        if (msg.sender == manager) {
+            return 1;
+        }
+        else return 0;
+    }
     function verifyPatient (uint _patientId) public OnlyManager{
         require(patients[_patientId].isValid);
         patients[_patientId].isVerified=true;
@@ -79,5 +93,11 @@ contract MemberContract {
         require(hospitals[_hospitalId].isValid);
         hospitals[_hospitalId].isVerified=true;
         emit HospitalRegisterSuccess(_hospitalId,now);
+    }
+    function setPBlockNum(uint _newBlockNum) public OnlyManager {
+        patientRegisterApplyBlockNumber = _newBlockNum;
+    }
+    function setHBlockNum(uint _newBlockNum) public OnlyManager {
+        hospitalRegisterApplyBlockNumber = _newBlockNum;
     }
 }

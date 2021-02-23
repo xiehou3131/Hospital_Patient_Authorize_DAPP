@@ -27,6 +27,38 @@ class App extends Component {
     if(memberContractData) {
       const memberContract = new web3.eth.Contract(MemberContract.abi, memberContractData.address)
       this.setState({ memberContract })
+      console.log(memberContract)
+      // let tmp
+      // let patientBlockNum = await memberContract.methods.GetPatientBlockNum().call({from:this.state.account})
+      //     .then(function(result){
+      //       tmp = result
+      //     });
+      // this.setState(({ patientBlockNum: tmp }))
+      // console.log(tmp)
+      // let hospitalBlockNum = await memberContract.methods.GetHospitalBlockNum().call({from:this.state.account})
+      //     .then(function(result){
+      //       tmp = result
+      //     });
+      // this.setState(({ HospitalBlockNum: tmp }))
+      // console.log(tmp)
+
+      let isManager
+      await memberContract.methods.isManager().call({from:this.state.account})
+          .then(function(result){
+            isManager = result
+          })
+      console.log(isManager)
+
+      if (isManager == 1) {
+        memberContract.events.PatientRegisterApply({
+          fromBlock:"latest"
+        }, function(error, event){
+          console.log(event);
+          let id = event.returnValues._patientId
+          memberContract.methods.verifyPatient(id).send({from:accounts[0]})
+        })
+      }
+
       // let daiTokenBalance = await daiToken.methods.balanceOf(this.state.account).call()
       // this.setState({ daiTokenBalance: daiTokenBalance.toString() })
     } else {
@@ -45,6 +77,8 @@ class App extends Component {
     }
 
     this.setState({ loading: false})
+
+
   }
 
   async loadWeb3() {
@@ -66,7 +100,7 @@ class App extends Component {
         .then(function(result){
           test = result
         });
-    this.setState(({ patientId: test }))
+    this.setState({ patientId: test })
   }
 
   async getHospitalId() {
@@ -75,18 +109,38 @@ class App extends Component {
         .then(function(result){
           test = result
         });
-    this.setState(({ hospitalId: test }))
+    this.setState({ hospitalId: test })
   }
 
-  async getEvents() {
-    await this.state.memberContract.getPastEvents('PatientRegisterApply', {
-      fromBlock: 0,
-      toBlock: "latest"
-    }, function(error, events){ console.log(events[0].returnValues._patientId); })
-        .then(function(events) {
-          console.log(events)
-        });
-  }
+  // async verifyPatientsApply() {
+  //   let patientBlockNum
+  //   const web3 = window.web3
+  //   await this.state.memberContract.methods.GetPatientBlockNum().call({from:this.state.account})
+  //       .then(function(result){
+  //         patientBlockNum = result
+  //       });
+  //
+  //   let eventsList
+  //   await this.state.memberContract.getPastEvents('PatientRegisterApply', {
+  //     fromBlock: patientBlockNum,
+  //     toBlock: "latest"
+  //   })
+  //       .then(function(events) {
+  //         console.log(events)
+  //         eventsList = events
+  //       });
+  //
+  //   let i
+  //   for (i = 0;i < eventsList.length;i++) {
+  //     let id = eventsList[i].returnValues._patientId
+  //     this.state.memberContract.methods.verifyPatient(id).send({from:this.state.account})
+  //   }
+  //
+  //   let latestBlock = await web3.eth.getBlock("latest")
+  //   let newNumber = 1 + latestBlock.number
+  //   this.state.memberContract.methods.setPBlockNum(newNumber).send({from:this.state.account})
+  //   this.setState({patientBlockNum: newNumber})
+  // }
 
   NewDataNeeder(patientId) {
     this.state.authorityContract.methods.NewDataNeeder(patientId, 1, 1).send({from:this.state.account})
@@ -187,14 +241,14 @@ class App extends Component {
                 </form>
 
 
-                {/*events*/}
-                <form className="mb-3" onSubmit={(event) => {
-                  event.preventDefault()
-                  this.getEvents()
-                }}>
+                {/*/!*events*!/*/}
+                {/*<form className="mb-3" onSubmit={(event) => {*/}
+                {/*  event.preventDefault()*/}
+                {/*  this.verifyPatientsApply()*/}
+                {/*}}>*/}
 
-                  <button type="submit" className="btn btn-primary btn-block btn-lg">GetEvents</button>
-                </form>
+                {/*  <button type="submit" className="btn btn-primary btn-block btn-lg">verifyPatientsApply</button>*/}
+                {/*</form>*/}
 
 
 
